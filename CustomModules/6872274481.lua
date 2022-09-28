@@ -11000,3 +11000,92 @@ task.spawn(function()
 		end)
 	end)
 end)
+
+local bypassed = false
+runcode(function()
+	local anticheatdisabler = {["Enabled"] = false}
+	local anticheatdisablerauto = {["Enabled"] = false}
+	local anticheatdisablerconnection
+	local anticheatdisablerconnection2
+	anticheatdisabler = GuiLibrary["ObjectsThatCanBeSaved"]["UtilityWindow"]["Api"].CreateOptionsButton({
+		["Name"] = "FloatDisabler",
+		["Function"] = function(callback)
+			if callback then
+				local balloonitem = getItem("balloon")
+				if balloonitem then
+					local oldfunc3 = bedwars["BalloonController"].hookBalloon
+					local oldfunc4 = bedwars["BalloonController"].enableBalloonPhysics
+					local oldfunc5 = bedwars["BalloonController"].deflateBalloon
+					bedwars["BalloonController"].inflateBalloon()
+					bedwars["BalloonController"].enableBalloonPhysics = function() end
+					bedwars["BalloonController"].deflateBalloon = function() end
+					bedwars["BalloonController"].hookBalloon = function(Self, plr, attachment, balloon)
+						if tostring(plr) == lplr.Name then
+							balloon:WaitForChild("Balloon").CFrame = CFrame.new(0, -1995, 0)
+							balloon.Balloon:ClearAllChildren()
+							local threadidentity = syn and syn.set_thread_identity or setidentity
+							threadidentity(7)
+							spawn(function()
+								wait(0.5)
+								createwarning("AnticheatDisabler", "Disabled Anticheat!", 5)
+								bypassed = true
+							end)
+							threadidentity(2)
+							bedwars["BalloonController"].hookBalloon = oldfunc3
+							bedwars["BalloonController"].enableBalloonPhysics = oldfunc4
+						end
+					end
+				end
+				anticheatdisabler["ToggleButton"](true)
+			end
+		end
+	})
+	anticheatdisablerauto = anticheatdisabler.CreateToggle({
+		["Name"] = "Auto Disable",
+		["Function"] = function(callback)
+			if callback then
+				anticheatdisablerconnection = repstorage.Inventories.DescendantAdded:connect(function(p3)
+					if p3.Parent.Name == lplr.Name then
+						if p3.Name == "balloon" then
+							repeat task.wait() until getItem("balloon")
+							anticheatdisabler["ToggleButton"](false)
+						end
+					end
+				end)
+			else
+				if anticheatdisablerconnection then
+					anticheatdisablerconnection:Disconnect()
+				end
+			end
+		end,
+	})
+end)
+
+runcode(function()
+	local TPForwardDelay = tick()
+	local TPForward = {["Enabled"] = false}
+	local TPForwardValue = {["Value"] = 12}
+	TPForward = GuiLibrary["ObjectsThatCanBeSaved"]["UtilityWindow"]["Api"].CreateOptionsButton({
+		["Name"] = "TPForward",
+		["Function"] = function(callback)
+			if callback then
+				if entity.isAlive then 
+					if TPForwardDelay <= tick() then
+						entity.character.HumanoidRootPart.CFrame = entity.character.HumanoidRootPart.CFrame + entity.character.HumanoidRootPart.CFrame.lookVector * (TPForwardValue["Value"] - .5)
+						TPForwardDelay = tick() + 5
+					else
+						createwarning("TPForward", "Wait "..(math.floor((TPForwardDelay - tick()) * 10) / 10).." before retoggling.", 1)
+					end
+				end
+				TPForward["ToggleButton"](false)
+			end
+		end
+	})
+	TPForwardValue = TPForward.CreateSlider({
+		["Name"] = "TP",
+		["Function"] = function() end,
+		["Min"] = 1,
+		["Max"] = 6,
+		["Default"] = 6
+	})
+end)
