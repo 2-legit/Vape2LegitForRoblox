@@ -4636,3 +4636,108 @@ runcode(function()
 		["Function"] = function(callback) end
 	})
 end)
+
+	local ClickTP = {["Enabled"] = false}
+	local ClickTPMethod = {["Value"] = "Normal"}
+	local ClickTPDelay = {["Value"] = 1}
+	local ClickTPAmount = {["Value"] = 1}
+	local ClickTPVertical = {["Enabled"] = true}
+	local ClickTPVelocity = {["Enabled"] = false}
+	ClickTP = GuiLibrary["ObjectsThatCanBeSaved"]["WorldWindow"]["Api"].CreateOptionsButton({
+		["Name"] = "TeleportTap", 
+		["Function"] = function(callback) 
+			if callback then
+				RunLoops:BindToHeartbeat("MouseTP", 1, function()
+					if entity.isAlive and ClickTPVelocity["Enabled"] and ClickTPMethod["Value"] == "SlowTP" then 
+						entity.character.HumanoidRootPart.Velocity = Vector3.new()
+					end
+				end)
+				if entity.isAlive then 
+					local rayparams = RaycastParams.new()
+					rayparams.FilterDescendantsInstances = {lplr.Character, cam}
+					rayparams.FilterType = Enum.RaycastFilterType.Blacklist
+					local ray = workspace:Raycast(cam.CFrame.p, lplr:GetMouse().UnitRay.Direction * 10000, rayparams)
+					local selectedpos = ray and ray.Position + Vector3.new(0, 2, 0)
+					if selectedpos then 
+						if ClickTPMethod["Value"] == "Normal" then
+							entity.character.HumanoidRootPart.CFrame = CFrame.new(selectedpos)
+							ClickTP["ToggleButton"](false)
+						else
+							spawn(function()
+								repeat
+									if entity.isAlive then 
+										local newpos = (selectedpos - entity.character.HumanoidRootPart.CFrame.p).Unit
+										newpos = newpos == newpos and newpos * (math.clamp((entity.character.HumanoidRootPart.CFrame.p - selectedpos).magnitude, 0, ClickTPAmount["Value"])) or Vector3.new()
+										entity.character.HumanoidRootPart.CFrame = entity.character.HumanoidRootPart.CFrame + Vector3.new(newpos.X, (ClickTPVertical["Enabled"] and newpos.Y or 0), newpos.Z)
+										entity.character.HumanoidRootPart.Velocity = Vector3.new()
+										if (entity.character.HumanoidRootPart.CFrame.p - selectedpos).magnitude <= 5 then 
+											break
+										end
+									end
+									task.wait(ClickTPDelay["Value"] / 100)
+								until entity.isAlive and (entity.character.HumanoidRootPart.CFrame.p - selectedpos).magnitude <= 5 or (not ClickTP["Enabled"])
+								if ClickTP["Enabled"] then 
+									ClickTP["ToggleButton"](false)
+								end
+							end)
+						end
+					else
+						ClickTP["ToggleButton"](false)
+						createwarning("ClickTP", "No position found.", 1)
+					end
+				else
+					if ClickTP["Enabled"] then 
+						ClickTP["ToggleButton"](false)
+					end
+				end
+			else
+				RunLoops:UnbindFromHeartbeat("MouseTP")
+			end
+		end, 
+		["HoverText"] = "Teleports to where your mouse is."
+	})
+	ClickTPMethod = ClickTP.CreateDropdown({
+		["Name"] = "Method",
+		["List"] = {"Normal", "SlowTP"},
+		["Function"] = function(val)
+			if ClickTPAmount["Object"] then
+				ClickTPAmount["Object"].Visible = val == "SlowTP"
+			end
+			if ClickTPDelay["Object"] then
+				ClickTPDelay["Object"].Visible = val == "SlowTP"
+			end
+			if ClickTPVertical["Object"] then 
+				ClickTPVertical["Object"].Visible = val == "SlowTP"
+			end
+			if ClickTPVelocity["Object"] then 
+				ClickTPVelocity["Object"].Visible = val == "SlowTP"
+			end
+		end
+	})
+	ClickTPAmount = ClickTP.CreateSlider({
+		["Name"] = "Amount",
+		["Min"] = 1,
+		["Max"] = 50,
+		["Function"] = function() end
+	})
+	ClickTPAmount["Object"].Visible = false
+	ClickTPDelay = ClickTP.CreateSlider({
+		["Name"] = "Delay",
+		["Min"] = 1,
+		["Max"] = 50,
+		["Function"] = function() end
+	})
+	ClickTPDelay["Object"].Visible = false
+	ClickTPVertical = ClickTP.CreateToggle({
+		["Name"] = "Vertical",
+		["Default"] = true,
+		["Function"] = function() end
+	})
+	ClickTPVertical["Object"].Visible = false
+	ClickTPVelocity = ClickTP.CreateToggle({
+		["Name"] = "No Velocity",
+		["Default"] = true,
+		["Function"] = function() end
+	})
+	ClickTPVelocity["Object"].Visible = false
+end)
