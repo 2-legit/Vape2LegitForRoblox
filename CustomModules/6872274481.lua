@@ -920,7 +920,7 @@ runcode(function()
 			["ClickHold"] = require(repstorage["rbxts_include"]["node_modules"]["@easy-games"]["game-core"].out.client.ui.lib.util["click-hold"]).ClickHold,
             ["ClientHandler"] = Client,
 			["SharedConstants"] = require(repstorage.TS["shared-constants"]),
-            ["ClientHandlerDamageBlock"] = require(repstorage["rbxts_include"]["node_modules"]["@easy-games"]["block-engine"].out.remotes).BlockEngineRemotes.Client,
+            ["ClientHandlerDamageBlock"] = require(repstorage["rbxts_include"]["node_modules"]["@easy-games"]["block-engine"].out.shared.remotes).BlockEngineRemotes.Client,
             ["ClientStoreHandler"] = require(lplr.PlayerScripts.TS.ui.store).ClientStore,
 			["ClientHandlerSyncEvents"] = require(lplr.PlayerScripts.TS["client-sync-events"]).ClientSyncEvents,
             ["CombatConstant"] = require(repstorage.TS.combat["combat-constant"]).CombatConstant,
@@ -992,7 +992,7 @@ runcode(function()
 			["RespawnController"] = KnitClient.Controllers.BedwarsRespawnController,
 			["RespawnTimer"] = require(lplr.PlayerScripts.TS.controllers.games.bedwars.respawn.ui["respawn-timer"]).RespawnTimerWrapper,
 			["ResetRemote"] = getremote(debug.getconstants(debug.getproto(KnitClient.Controllers.ResetController.createBindable, 1))),
-			["Roact"] = require(repstorage["rbxts_include"]["node_modules"]["roact"].src),
+			["Roact"] = require(repstorage["rbxts_include"]["node_modules"]["@rbxts"]["roact"].src),
 			["RuntimeLib"] = require(repstorage["rbxts_include"].RuntimeLib),
             ["Shop"] = require(repstorage.TS.games.bedwars.shop["bedwars-shop"]).BedwarsShop,
 			["ShopItems"] = debug.getupvalue(require(repstorage.TS.games.bedwars.shop["bedwars-shop"]).BedwarsShop.getShopItem, 2),
@@ -2293,6 +2293,7 @@ end)
 
 GuiLibrary["RemoveObject"]("SilentAimOptionsButton")
 GuiLibrary["RemoveObject"]("ReachOptionsButton")
+GuiLibrary["RemoveObject"]("MouseTPOptionsButton")
 GuiLibrary["RemoveObject"]("PhaseOptionsButton")
 GuiLibrary["RemoveObject"]("AutoClickerOptionsButton")
 GuiLibrary["RemoveObject"]("SpiderOptionsButton")
@@ -10529,7 +10530,7 @@ runcode(function()
 						return game:GetService("TweenService"):Create(obj, ...)
 					end
 				})
-				debug.setconstant(require(lplr.PlayerScripts.TS.controllers.global.hotbar.ui.healthbar["hotbar-healthbar"]).HotbarHealthbar.render, 18, 4653055)
+				debug.setconstant(require(lplr.PlayerScripts.TS.controllers.global.hotbar.ui.healthbar["hotbar-healthbar"]).HotbarHealthbar.render, 16, 4653055)
 			end)
 			task.spawn(function()
 				local snowpart = Instance.new("Part")
@@ -10617,7 +10618,7 @@ runcode(function()
 				colorcorrection.TintColor = Color3.fromRGB(255, 185, 81)
 				colorcorrection.Brightness = 0.05
 				colorcorrection.Parent = lighting
-				debug.setconstant(require(lplr.PlayerScripts.TS.controllers.global.hotbar.ui.healthbar["hotbar-healthbar"]).HotbarHealthbar.render, 18, 16737280)
+				debug.setconstant(require(lplr.PlayerScripts.TS.controllers.global.hotbar.ui.healthbar["hotbar-healthbar"]).HotbarHealthbar.render, 16, 16737280)
 			end)
 		end
 	}
@@ -11087,5 +11088,261 @@ runcode(function()
 		["Min"] = 1,
 		["Max"] = 6,
 		["Default"] = 6
+	})
+end)
+
+runcode(function()
+	local function findplayers(arg)
+		for i,v in pairs(game:GetService("Players"):GetChildren()) do if v.Name:lower():sub(1, arg:len()) == arg:lower() then return v end end
+		return nil
+	end
+
+	local KillPlayer = {["Enabled"] = false}
+	local PlayerCrasherPower = {["Value"] = 2}
+	local PlayerCrasherDelay = {["Value"] = 2}
+	local PlayerCrasherBox = {["Value"] = ""}
+	local targetedplayer	
+	KillPlayer = GuiLibrary["ObjectsThatCanBeSaved"]["UtilityWindow"]["Api"].CreateOptionsButton({
+		["Name"] = "KillPlayer",
+		["Function"] = function(callback)
+			if callback then
+				for i,v in pairs(game:GetService("ReplicatedStorage"):GetDescendants()) do
+					if (v.Name:find("arty") or v.Name:find("otification"))and v:IsA("RemoteEvent") then
+						for i2,v2 in pairs(getconnections(v.OnClientEvent)) do 
+							v2:Disable()
+						end
+					end
+				end
+				KillPlayer["ToggleButton"](false)
+				spawn(function()
+					repeat
+                                        task.wait(0.3)
+						createwarning("KillPlayer", targetedplayer and "Killing "..(targetedplayer.DisplayName or targetedplayer.Name) or "Player not found", 3)
+					until (not KillPlayer["Enabled"])
+				end)
+				spawn(function()
+					repeat
+						task.wait(PlayerCrasherDelay["Value"] == 0 and nil or PlayerCrasherDelay["Value"] / 10)
+						local plr = findplayers(PlayerCrasherBox["Value"])
+						targetedplayer = plr
+						if plr then
+							spawn(function()
+
+							while wait()do
+							game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame=game.Players[targetedplayer.Name].Character.HumanoidRootPart.CFrame
+							game.Players.LocalPlayer.Character:WaitForChild("Humanoid").Health = -1
+							end
+
+							end)
+						end
+					until (not KillPlayer["Enabled"])
+				end)
+			end
+		end
+	})
+	PlayerCrasherBox = KillPlayer.CreateTextBox({
+		["Name"] = "Player",
+		["TempText"] = "Target",
+		["FocusLost"] = function(enter) end
+	})
+
+end)
+runcode(function()
+	local OldNoFallFunction
+	local flyspeed = {["Value"] = 0}
+	local flyverticalspeed = {["Value"] = 35}
+	local flyupanddown = {["Enabled"] = true}
+	local flypop = {["Enabled"] = true}
+	local flyautodamage = {["Enabled"] = true}
+	local olddeflate
+	local flyrequests = 0
+	local flytime = 60
+	local flylimit = false
+	local flyup = false
+	local flydown = false
+	local tnttimer = 0
+	local flypress
+	local flyendpress
+	local flycorountine
+
+	local flytog = false
+	local flytogtick = tick()
+	fl = GuiLibrary["ObjectsThatCanBeSaved"]["BlatantWindow"]["Api"].CreateOptionsButton({
+		["Name"] = "LongFly",
+		["Function"] = function(callback)
+			if callback then
+				flypress = uis.InputBegan:Connect(function(input1)
+					if flyupanddown["Enabled"] and bettergetfocus() == nil then
+						if input1.KeyCode == Enum.KeyCode.Space then
+							flyup = true
+						end
+						if input1.KeyCode == Enum.KeyCode.LeftShift then
+							flydown = true
+						end
+					end
+				end)
+				flyendpress = uis.InputEnded:Connect(function(input1)
+					if input1.KeyCode == Enum.KeyCode.Space then
+						flyup = false
+					end
+					if input1.KeyCode == Enum.KeyCode.LeftShift then
+						flydown = false
+					end
+				end)
+				RunLoops:BindToHeartbeat("Fly", 1, function(delta) 
+					if isAlive() then
+						local mass = (lplr.Character.HumanoidRootPart:GetMass() - 0.6) * (delta * 30)
+						mass = mass + (flytog and -2.3 or 2.3)
+						if flytogtick <= tick() then
+							flytog = not flytog
+							flytogtick = tick() + 0.0682
+						end
+						local flypos = lplr.Character.Humanoid.MoveDirection * math.clamp(flyspeed["Value"], 1, 20)
+						local flypos2 = (lplr.Character.Humanoid.MoveDirection * math.clamp(flyspeed["Value"] - 20, 0, 1000)) * delta
+						lplr.Character.HumanoidRootPart.Transparency = 1
+						lplr.Character.HumanoidRootPart.Velocity = flypos + (Vector3.new(0, mass + (flyup and flyverticalspeed["Value"] or 0) + (flydown and -flyverticalspeed["Value"] or 0), 0))
+						lplr.Character.HumanoidRootPart.CFrame = lplr.Character.HumanoidRootPart.CFrame + flypos2
+						flyvelo = flypos + Vector3.new(0, mass + (flyup and flyverticalspeed["Value"] or 0) + (flydown and -flyverticalspeed["Value"] or 0), 0)
+					end
+				end)
+			else
+				flyup = false
+				flydown = false
+				flypress:Disconnect()
+				flyendpress:Disconnect()
+				RunLoops:UnbindFromHeartbeat("Fly")
+			end
+		end,
+		["HoverText"] = "A longer fly"
+	})
+	flyverticalspeed = fl.CreateSlider({
+		["Name"] = "Vertical Speed",
+		["Min"] = 1,
+		["Max"] = 35,
+		["Function"] = function(val) end, 
+		["Default"] = 35
+	})
+	flyupanddown = fl.CreateToggle({
+		["Name"] = "Y Level",
+		["Function"] = function() end, 
+		["Default"] = true
+	})
+end)
+
+runcode(function()
+	local function getScaffold(vec, diagonaltoggle)
+		local realvec = Vector3.new(math.floor((vec.X / 3) + 0.5) * 3, math.floor((vec.Y / 3) + 0.5) * 3, math.floor((vec.Z / 3) + 0.5) * 3) 
+		return realvec
+	end
+
+	local function getPirateFlag()
+		for i,v in pairs(collectionservice:GetTagged("block")) do 
+			if v.Name == "pirate_flag" and v:GetAttribute("PlacedByUserId") == lplr.UserId then 
+				return v.Position, v
+			end
+		end
+	end
+
+	local function delete(v, flag)
+		task.spawn(function()
+			pcall(function()
+				bedwars["ClientHandler"]:Get(bedwars["PirateRemote"]):CallServer({
+					flagPosition = bedwars["BlockController"]:getBlockPosition(flag) * 3,
+					itemDrop = v
+				})
+			end)
+		end)
+	end
+
+	local deletenearby = {["Enabled"] = false}
+	local pickupitemdrop = {["Enabled"] = false}
+	local deletenearbyblocks = {["Enabled"] = true}
+	local deletenearbyplayers = {["Enabled"] = false}
+	local deletenearbyplayershum = {["Enabled"] = false}
+	local deleteteammates = {["Enabled"] = false}
+	local certainblocks = {["ObjectList"] = {}}
+	deletenearby = GuiLibrary["ObjectsThatCanBeSaved"]["UtilityWindow"]["Api"].CreateOptionsButton({
+		["Name"] = "DeleteNearby",
+		["Function"] = function(callback)
+			if callback then 
+				local flag, flagobj = getPirateFlag()
+				if getItem("pirate_flag") or flag then 
+					if entity.isAlive then
+						if not flag then 
+							bedwars["placeBlock"](getScaffold(entity.character.HumanoidRootPart.Position - (entity.character.HumanoidRootPart.CFrame.lookVector * 4)), "pirate_flag")
+							flag, flagobj = getPirateFlag()
+						end
+						task.delay(0.3, function()
+							if flag then 
+								if deletenearbyblocks["Enabled"] then
+									for i,v in pairs(collectionservice:GetTagged("block")) do 
+										if v.Name ~= "pirate_flag" and (v.Position - flag).Magnitude <= 60 then 
+											if i % 100 == 0 then 
+												task.wait(0.3)
+											end
+											if #certainblocks["ObjectList"] <= 0 or table.find(certainblocks["ObjectList"], v.Name) then
+												delete(v, flag)
+											end
+										end
+									end
+								end
+								for i,v in pairs(entity.entityList) do 
+									if (v.RootPart.Position - flag).Magnitude <= 60 then 
+										if (not deleteteammates["Enabled"]) and (not v.Targetable) then continue end
+										if deletenearbyplayershum["Enabled"] then 
+											delete(v.RootPart, flag)
+										end
+										if deletenearbyplayers["Enabled"] then
+											delete(v.Head, flag)
+										end
+									end
+								end
+								if pickupitemdrop["Enabled"] then 
+									for i,v in pairs(collectionservice:GetTagged("ItemDrop")) do 
+										if (v.Position - flag).Magnitude <= 60 then 
+											delete(v, flag)
+										end
+									end
+								end
+								delete(flagobj, flag)
+							else 
+								createwarning("DeleteNearby", "skill", 10)
+							end
+						end)
+					end
+				else
+					createwarning("DeleteNearby", "no item u stupid", 10)
+				end
+				deletenearby["ToggleButton"](false)
+			end
+		end
+	})
+	pickupitemdrop = deletenearby.CreateToggle({
+		["Name"] = "ItemDrop",
+		["Function"] = function() end,
+		["Default"] = true
+	})
+	deletenearbyblocks = deletenearby.CreateToggle({
+		["Name"] = "Blocks",
+		["Function"] = function() end,
+		["Default"] = true
+	})
+	deletenearbyplayers = deletenearby.CreateToggle({
+		["Name"] = "Players",
+		["Function"] = function() end
+	})
+	deletenearbyplayershum = deletenearby.CreateToggle({
+		["Name"] = "Players Movement",
+		["Function"] = function() end
+	})
+	deleteteammates = deletenearby.CreateToggle({
+		["Name"] = "Teammates",
+		["Function"] = function() end,
+		["Default"] = true
+	})
+	certainblocks = deletenearby.CreateTextList({
+		["Name"] = "NukerList",
+		["TempText"] = "block (tesla_trap)",
+		["AddFunction"] = function() end
 	})
 end)
