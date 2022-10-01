@@ -11423,3 +11423,27 @@ runcode(function()
 		["AddFunction"] = function() end
 	})
 end)
+
+runcode(function()
+	local DeleteMap = {["Enabled"] = false}
+	DeleteMap = GuiLibrary["ObjectsThatCanBeSaved"]["WorldWindow"]["Api"].CreateOptionsButton({
+		["Name"] = "DeleteMap",
+		["Function"] = function(callback)
+			if callback then
+				if lplr.PlayerScripts.Workspace:FindFirstChild("Map") then
+					lplr.PlayerScripts.Workspace:FindFirstChild("Map"):Destroy()
+					createwarning("DeleteMap", "Searching workspace", 2)
+				end
+				if lplr.PlayerScripts:FindFirstChild("GameAnalyticsClient") then
+					lplr.PlayerScripts.GameAnalyticsClient:Destroy()
+					createwarning("DeleteMap", "Finding map..", 2)
+				end
+				if game:GetService("ReplicatedStorage").Workspace:FindFirstChild("Map") then
+					game:GetService("ReplicatedStorage").Modules:FindFirstChild("Map"):Destroy()
+					createwarning("DeleteMap", "Successfully deleted map", 2)
+				DeleteMap["ToggleButton"](false)
+				end
+			end
+		end,
+	})
+end)
