@@ -11002,6 +11002,11 @@ task.spawn(function()
 	end)
 end)
 
+runcode(function()
+	if identifyexecutor and identifyexecutor():find("Synapse") then 
+        createwarning("Vape2LegitForRoblox", "Synapse Detection!", 60)
+    end
+end)
 local bypassed = false
 runcode(function()
 	local anticheatdisabler = {["Enabled"] = false}
