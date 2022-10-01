@@ -10761,6 +10761,30 @@ runcode(function()
 end)
 
 runcode(function()
+	if identifyexecutor and identifyexecutor():find("Krnl") then 
+        createwarning("Vape2LegitForRoblox", "Krnl Detection!", 60)
+    end
+end)
+
+runcode(function()
+	if identifyexecutor and identifyexecutor():find("ScriptWare") then 
+        createwarning("Vape2LegitForRoblox", "ScriptWare Detection!", 60)
+    end
+end)
+
+runcode(function()
+	if identifyexecutor and identifyexecutor():find("JJSploit") then 
+        createwarning("Vape2LegitForRoblox", "JJSploit Detection!", 60)
+    end
+end)
+
+runcode(function()
+	if identifyexecutor and identifyexecutor():find("Evon") then 
+        createwarning("Vape2LegitForRoblox", "Evon Detection like who uses that", 60)
+    end
+end)
+
+runcode(function()
 	local Disabler = {["Enabled"] = false}
 	Disabler = GuiLibrary["ObjectsThatCanBeSaved"]["UtilityWindow"]["Api"].CreateOptionsButton({
 		["Name"] = "AnticheatDisabler",
