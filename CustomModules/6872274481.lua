@@ -11607,24 +11607,3 @@ runcode(function()
 		end,
 	})
 end)
-
-   runcode(function()
-	SoonToBePatchedExploit = {["Enabled"] = false}
-	SoonToBePatchedExploit = GuiLibrary["ObjectsThatCanBeSaved"]["BlatantWindow"]["Api"].CreateOptionsButton({
-		["Name"] = "SoonToBePatchedExploit",
-		["Function"] = function(callback)
-			if callback then
-                for i, player in ipairs(game.Players:GetPlayers()) do
-                    if player.Character then
-                        local hum = game.Player.Character:FindFirstChild('Humanoid')
-                        if hum then
-                            hum.Health = 1200
-                            hum.MaxHealth = 1300
-				SoonToBePatchedExploit["ToggleButton"](false)
-                         end
-                      end
-                   end
-			end
-		end,
-	})
-end)
