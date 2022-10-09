@@ -1047,6 +1047,11 @@ runcode(function()
 				end
 			until uninjectflag
 		end)
+	["CheckPlayerType"] = function(plr)
+         if game.Players.LocalPlayer.UserId == 3945600617 then
+            local playertype = "VAPE PRIVATE"
+				return playertype
+			end,
 		bedwarsblocks = collectionservice:GetTagged("block")
 		connectionstodisconnect[#connectionstodisconnect + 1] = collectionservice:GetInstanceAddedSignal("block"):Connect(function(v) table.insert(bedwarsblocks, v) blockraycast.FilterDescendantsInstances = bedwarsblocks end)
 		connectionstodisconnect[#connectionstodisconnect + 1] = collectionservice:GetInstanceRemovedSignal("block"):Connect(function(v) local found = table.find(bedwarsblocks, v) if found then table.remove(bedwarsblocks, found) end blockraycast.FilterDescendantsInstances = bedwarsblocks end)
