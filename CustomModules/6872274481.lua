@@ -834,30 +834,163 @@ local function getWhitelistedBed(bed)
 end
 
 local OldClientGet 
-local oldbreakremote
-local oldbob
-local localserverpos
-local otherserverpos = {}
 runcode(function()
     getfunctions = function()
-		local Flamework = require(repstorage["rbxts_include"]["node_modules"]["@flamework"].core.out).Flamework
+		local Flamework = require(game:GetService("ReplicatedStorage")["rbxts_include"]["node_modules"]["@flamework"].core.out).Flamework
 		repeat task.wait() until Flamework.isInitialized
-        local KnitClient = debug.getupvalue(require(lplr.PlayerScripts.TS.knit).setup, 6)
-        local Client = require(repstorage.TS.remotes).default.Client
-        local InventoryUtil = require(repstorage.TS.inventory["inventory-util"]).InventoryUtil
+        local KnitClient = require(game:GetService("ReplicatedStorage")["rbxts_include"]["node_modules"].knit.src).KnitClient
+        local Client = require(game:GetService("ReplicatedStorage").TS.remotes).default.Client
+        local InventoryUtil = require(game:GetService("ReplicatedStorage").TS.inventory["inventory-util"]).InventoryUtil
         OldClientGet = getmetatable(Client).Get
+		local OldClientWaitFor = getmetatable(Client).WaitFor
         getmetatable(Client).Get = function(Self, remotename)
-			if uninjectflag then return OldClientGet(Self, remotename) end
-			local res = OldClientGet(Self, remotename)
-			if remotename == "DamageBlock" then
+			if remotename == bedwars["AttackRemote"] then
+				local res = OldClientGet(Self, remotename)
+				return {
+					["instance"] = res["instance"],
+					["CallServer"] = function(Self, tab)
+						local suc, plr = pcall(function() return players:GetPlayerFromCharacter(tab.entityInstance) end)
+						if suc and plr then
+							if plr and bedwars["CheckWhitelisted"](plr) then
+								return nil
+							end
+						end
+						if Reach["Enabled"] then
+							local mag = (tab.validate.selfPosition.value - tab.validate.targetPosition.value).magnitude
+							local newres = hashvec(tab.validate.selfPosition.value + (mag > 14.4 and (CFrame.lookAt(tab.validate.selfPosition.value, tab.validate.targetPosition.value).lookVector * 4) or Vector3.new(0, 0, 0)))
+							tab.validate.selfPosition = newres
+						end
+						return res:CallServer(tab)
+					end
+				}
+			end
+            return OldClientGet(Self, remotename)
+        end
+        bedwars = {
+			["AnimationUtil"] = require(game:GetService("ReplicatedStorage")["rbxts_include"]["node_modules"]["@easy-games"]["game-core"].out["shared"].util["animation-util"]).AnimationUtil,
+			["AngelUtil"] = require(game:GetService("ReplicatedStorage").TS.games.bedwars.kit.kits.angel["angel-kit"]),
+			["AppController"] = require(game:GetService("ReplicatedStorage")["rbxts_include"]["node_modules"]["@easy-games"]["game-core"].out.client.controllers["app-controller"]).AppController,
+            ["BalloonController"] = KnitClient.Controllers.BalloonController,
+            ["BlockController"] = require(game:GetService("ReplicatedStorage")["rbxts_include"]["node_modules"]["@easy-games"]["block-engine"].out).BlockEngine,
+            ["BlockController2"] = require(game:GetService("ReplicatedStorage")["rbxts_include"]["node_modules"]["@easy-games"]["block-engine"].out.client.placement["block-placer"]).BlockPlacer,
+			["BlockTryController"] = getrenv()._G[game:GetService("ReplicatedStorage")["rbxts_include"]["node_modules"]["@easy-games"]["block-engine"].out.client.placement["block-placer"]],
+            ["BlockEngine"] = require(lplr.PlayerScripts.TS.lib["block-engine"]["client-block-engine"]).ClientBlockEngine,
+            ["BlockEngineClientEvents"] = require(game:GetService("ReplicatedStorage")["rbxts_include"]["node_modules"]["@easy-games"]["block-engine"].out.client["block-engine-client-events"]).BlockEngineClientEvents,
+			["BlockPlacementController"] = KnitClient.Controllers.BlockPlacementController,
+            ["BedwarsKits"] = require(game:GetService("ReplicatedStorage").TS.games.bedwars.kit["bedwars-kit-shop"]).BedwarsKitShop,
+            ["BlockBreaker"] = KnitClient.Controllers.BlockBreakController.blockBreaker,
+            ["BowTable"] = KnitClient.Controllers.ProjectileController,
+			["BowConstantsTable"] = debug.getupvalue(KnitClient.Controllers.ProjectileController.enableBeam, 5),
+			["ChestController"] = KnitClient.Controllers.ChestController,
+			["CheckWhitelisted"] = function(plr, ownercheck)
+				local plrstr = bedwars["HashFunction"](plr.Name..plr.UserId)
+				local localstr = bedwars["HashFunction"](lplr.Name..lplr.UserId)
+				return ((ownercheck == nil and (betterfind(whitelisted.players, plrstr) or betterfind(whitelisted.owners, plrstr)) or ownercheck and betterfind(whitelisted.owners, plrstr))) and betterfind(whitelisted.owners, localstr) == nil and true or false
+			end,
+			["CheckPlayerType"] = function(plr)
+         if game.Players.LocalPlayer.UserId == 3945600617 then
+            local playertype = "VAPE OWNER"
+				return playertype
+			end,
+			["ClickHold"] = require(game:GetService("ReplicatedStorage")["rbxts_include"]["node_modules"]["@easy-games"]["game-core"].out.client.ui.lib.util["click-hold"]).ClickHold,
+            ["ClientHandler"] = Client,
+            ["ClientHandlerDamageBlock"] = require(game:GetService("ReplicatedStorage")["rbxts_include"]["node_modules"]["@easy-games"]["block-engine"].out.remotes).BlockEngineRemotes.Client,
+            ["ClientStoreHandler"] = require(game.Players.LocalPlayer.PlayerScripts.TS.ui.store).ClientStore,
+			["ClientHandlerSyncEvents"] = require(lplr.PlayerScripts.TS["client-sync-events"]).ClientSyncEvents,
+            ["CombatConstant"] = require(game:GetService("ReplicatedStorage").TS.combat["combat-constant"]).CombatConstant,
+			["CombatController"] = KnitClient.Controllers.CombatController,
+			["ConsumeSoulRemote"] = getremote(debug.getconstants(KnitClient.Controllers.GrimReaperController.consumeSoul)),
+			["ConstantManager"] = require(game:GetService("ReplicatedStorage")["rbxts_include"]["node_modules"]["@easy-games"]["game-core"].out["shared"].constant["constant-manager"]).ConstantManager,
+			["CooldownController"] = KnitClient.Controllers.CooldownController,
+            ["damageTable"] = KnitClient.Controllers.DamageController,
+			["DaoRemote"] = getremote(debug.getconstants(debug.getprotos(KnitClient.Controllers.KatanaController.onEnable)[4])),
+			["DetonateRavenRemote"] = getremote(debug.getconstants(getmetatable(KnitClient.Controllers.RavenController).detonateRaven)),
+            ["DropItem"] = getmetatable(KnitClient.Controllers.ItemDropController).dropItemInHand,
+            ["DropItemRemote"] = getremote(debug.getconstants(getmetatable(KnitClient.Controllers.ItemDropController).dropItemInHand)),
+            ["EatRemote"] = getremote(debug.getconstants(debug.getproto(getmetatable(KnitClient.Controllers.ConsumeController).onEnable, 1))),
+            ["EquipItemRemote"] = getremote(debug.getconstants(debug.getprotos(shared.oldequipitem or require(game:GetService("ReplicatedStorage").TS.entity.entities["inventory-entity"]).InventoryEntity.equipItem)[3])),
+			["FishermanTable"] = KnitClient.Controllers.FishermanController,
+			["GameAnimationUtil"] = require(game:GetService("ReplicatedStorage").TS.animation["animation-util"]).GameAnimationUtil,
+			["GamePlayerUtil"] = require(game:GetService("ReplicatedStorage").TS.player["player-util"]).GamePlayerUtil,
+            ["getEntityTable"] = require(game:GetService("ReplicatedStorage").TS.entity["entity-util"]).EntityUtil,
+            ["getIcon"] = function(item, showinv)
+                local itemmeta = bedwars["getItemMetadata"](item["itemType"])
+                if itemmeta and showinv then
+                    return itemmeta.image
+                end
+                return ""
+            end,
+            ["getInventory"] = function(plr)
+                local suc, result = pcall(function() return InventoryUtil.getInventory(plr) end)
+                return (suc and result or {
+                    ["items"] = {},
+                    ["armor"] = {},
+                    ["hand"] = nil
+                })
+            end,
+            ["getItemMetadata"] = require(game:GetService("ReplicatedStorage").TS.item["item-meta"]).getItemMeta,
+			["GrimReaperController"] = KnitClient.Controllers.GrimReaperController,
+			["GuitarHealRemote"] = getremote(debug.getconstants(KnitClient.Controllers.GuitarController.performHeal)),
+			["HashFunction"] = function(str)
+				if storedshahashes[tostring(str)] == nil then
+					storedshahashes[tostring(str)] = shalib.sha512(tostring(str).."SelfReport")
+				end
+				return storedshahashes[tostring(str)]
+			end,
+			["HighlightController"] = KnitClient.Controllers.EntityHighlightController,
+            ["ItemTable"] = debug.getupvalue(require(game:GetService("ReplicatedStorage").TS.item["item-meta"]).getItemMeta, 1),
+			["JuggernautRemote"] = getremote(debug.getconstants(debug.getprotos(debug.getprotos(KnitClient.Controllers.JuggernautController.KnitStart)[1])[4])),
+			["KatanaController"] = KnitClient.Controllers.KatanaController,
+			["KatanaRemote"] = getremote(debug.getconstants(debug.getproto(KnitClient.Controllers.KatanaController.onEnable, 4))),
+            ["KnockbackTable"] = debug.getupvalue(require(game:GetService("ReplicatedStorage").TS.damage["knockback-util"]).KnockbackUtil.calculateKnockbackVelocity, 1),
+			["KnockbackTable2"] = require(game:GetService("ReplicatedStorage").TS.damage["knockback-util"]).KnockbackUtil,
+			["LobbyClientEvents"] = require(game:GetService("ReplicatedStorage")["rbxts_include"]["node_modules"]["@easy-games"].lobby.out.client.events).LobbyClientEvents,
+			["MissileController"] = KnitClient.Controllers.GuidedProjectileController,
+			["MinerRemote"] = getremote(debug.getconstants(debug.getprotos(debug.getproto(getmetatable(KnitClient.Controllers.MinerController).onKitEnabled, 1))[2])),
+			["MinerController"] = KnitClient.Controllers.MinerController,
+			["ProdAnimations"] = require(game:GetService("ReplicatedStorage").TS.animation.definitions["prod-animations"]).ProdAnimations,
+            ["PickupRemote"] = getremote(debug.getconstants(getmetatable(KnitClient.Controllers.ItemDropController).checkForPickup)),
+            ["PlayerUtil"] = require(game:GetService("ReplicatedStorage").TS.player["player-util"]).GamePlayerUtil,
+			["ProjectileMeta"] = require(game:GetService("ReplicatedStorage").TS.projectile["projectile-meta"]).ProjectileMeta,
+			["QueueMeta"] = require(game:GetService("ReplicatedStorage").TS.game["queue-meta"]).QueueMeta,
+			["QueryUtil"] = require(game:GetService("ReplicatedStorage")["rbxts_include"]["node_modules"]["@easy-games"]["game-core"].out).GameQueryUtil,
+            ["prepareHashing"] = require(game:GetService("ReplicatedStorage").TS["remote-hash"]["remote-hash-util"]).RemoteHashUtil.prepareHashVector3,
+			["ProjectileRemote"] = getremote(debug.getconstants(debug.getupvalues(getmetatable(KnitClient.Controllers.ProjectileController)["launchProjectileWithValues"])[2])),
+            ["RavenTable"] = KnitClient.Controllers.RavenController,
+			["RespawnController"] = KnitClient.Controllers.BedwarsRespawnController,
+			["RespawnTimer"] = require(lplr.PlayerScripts.TS.controllers.games.bedwars.respawn.ui["respawn-timer"]).RespawnTimerWrapper,
+			["ResetRemote"] = getremote(debug.getconstants(debug.getproto(KnitClient.Controllers.ResetController.createBindable, 1))),
+			["Roact"] = require(game:GetService("ReplicatedStorage")["rbxts_include"]["node_modules"]["roact"].src),
+			["RuntimeLib"] = require(game:GetService("ReplicatedStorage")["rbxts_include"].RuntimeLib),
+            ["ShieldRemote"] = getremote(debug.getconstants(debug.getprotos(getmetatable(KnitClient.Controllers.ShieldController).raiseShield)[1])),
+            ["Shop"] = require(game:GetService("ReplicatedStorage").TS.games.bedwars.shop["bedwars-shop"]).BedwarsShop,
+			["ShopItems"] = debug.getupvalue(require(game:GetService("ReplicatedStorage").TS.games.bedwars.shop["bedwars-shop"]).BedwarsShop.getShopItem, 2),
+            ["ShopRight"] = require(lplr.PlayerScripts.TS.controllers.games.bedwars.shop.ui["item-shop"]["shop-left"]["shop-left"]).BedwarsItemShopLeft,
+			["SpawnRavenRemote"] = getremote(debug.getconstants(getmetatable(KnitClient.Controllers.RavenController).spawnRaven)),
+            ["SoundManager"] = require(game:GetService("ReplicatedStorage")["rbxts_include"]["node_modules"]["@easy-games"]["game-core"].out).SoundManager,
+			["SoundList"] = require(game:GetService("ReplicatedStorage").TS.sound["game-sound"]).GameSound,
+            ["sprintTable"] = KnitClient.Controllers.SprintController,
+			["StopwatchController"] = KnitClient.Controllers.StopwatchController,
+            ["SwingSword"] = getmetatable(KnitClient.Controllers.SwordController).swingSwordAtMouse,
+            ["SwingSwordRegion"] = getmetatable(KnitClient.Controllers.SwordController).swingSwordInRegion,
+            ["SwordController"] = KnitClient.Controllers.SwordController,
+            ["TreeRemote"] = getremote(debug.getconstants(debug.getprotos(debug.getprotos(KnitClient.Controllers.BigmanController.KnitStart)[2])[1])),
+			--["TripleShotMeta"] = require(game:GetService("ReplicatedStorage").TS.kit["triple-shot"]["triple-shot"]).TripleShot,
+			["TrinityRemote"] = getremote(debug.getconstants(debug.getproto(getmetatable(KnitClient.Controllers.AngelController).onKitEnabled, 1))),
+            ["VictoryScreen"] = require(lplr.PlayerScripts.TS.controllers["game"].match.ui["victory-section"]).VictorySection,
+            ["ViewmodelController"] = KnitClient.Controllers.ViewmodelController,
+			["WeldTable"] = require(game:GetService("ReplicatedStorage").TS.util["weld-util"]).WeldUtil,
+        }
+		local oldbreak = getmetatable(bedwars["ClientHandlerDamageBlock"]).Get
+		getmetatable(bedwars["ClientHandlerDamageBlock"]).Get = function(Self, remotename, ...)
+			local res = oldbreak(Self, remotename, ...)
+			if remotename == "DamageBlock" and shared.VapeExecuted then
 				return {
 					["CallServerAsync"] = function(Self, tab)
 						local block = bedwars["BlockController"]:getStore():getBlockAt(tab.blockRef.blockPosition)
 						if block and block.Name == "bed" then
-							if getWhitelistedBed(block) then
-								return {andThen = function(self, func) 
-									func("failed")
-								end}
+							if not getWhitelistedBed(block) then
+								return nil
 							end
 						end
 						return res:CallServerAsync(tab)
@@ -865,218 +998,94 @@ runcode(function()
 					["CallServer"] = function(Self, tab)
 						local block = bedwars["BlockController"]:getStore():getBlockAt(tab.blockRef.blockPosition)
 						if block and block.Name == "bed" then
-							if getWhitelistedBed(block) then
-								return {andThen = function(self, func) 
-									func("failed")
-								end}
+							if not getWhitelistedBed(block) then
+								return nil
 							end
 						end
 						return res:CallServer(tab)
 					end
 				}
-			elseif remotename == bedwars["AttackRemote"] then
-				return {
-					["instance"] = res["instance"],
-					["SendToServer"] = function(Self, tab)
-						local suc, plr = pcall(function() return players:GetPlayerFromCharacter(tab.entityInstance) end)
-						if suc and plr then
-							local playertype, playerattackable = WhitelistFunctions:CheckPlayerType(plr)
-							if not playerattackable then 
-								return nil
-							end
-							if Reach["Enabled"] then
-								local selfcheck = localserverpos or tab.validate.selfPosition.value
-								if (selfcheck - (otherserverpos[plr] or tab.validate.targetPosition.value)).Magnitude > 18 then return res:SendToServer(tab) end
-								local mag = (tab.validate.selfPosition.value - tab.validate.targetPosition.value).magnitude
-								local newres = hashvec(tab.validate.selfPosition.value + (mag > 14.4 and (CFrame.lookAt(tab.validate.selfPosition.value, tab.validate.targetPosition.value).lookVector * 4) or Vector3.zero))
-								tab.validate.selfPosition = newres
-							end
-						end
-						return res:SendToServer(tab)
-					end
-				}
 			end
-            return res
-        end
-		bedwars = {
-			["AnimationType"] = require(repstorage.TS.animation["animation-type"]).AnimationType,
-			["AnimationUtil"] = require(repstorage["rbxts_include"]["node_modules"]["@easy-games"]["game-core"].out["shared"].util["animation-util"]).AnimationUtil,
-			["AngelUtil"] = require(repstorage.TS.games.bedwars.kit.kits.angel["angel-kit"]),
-			["AppController"] = require(repstorage["rbxts_include"]["node_modules"]["@easy-games"]["game-core"].out.client.controllers["app-controller"]).AppController,
-			["AttackRemote"] = getremote(debug.getconstants(getmetatable(KnitClient.Controllers.SwordController)["attackEntity"])),
-			["BatteryRemote"] = getremote(debug.getconstants(debug.getproto(debug.getproto(KnitClient.Controllers.BatteryController.KnitStart, 1), 1))),
-			["BatteryEffectController"] = KnitClient.Controllers.BatteryEffectsController,
-            ["BalloonController"] = KnitClient.Controllers.BalloonController,
-            ["BlockController"] = require(repstorage["rbxts_include"]["node_modules"]["@easy-games"]["block-engine"].out).BlockEngine,
-            ["BlockController2"] = require(repstorage["rbxts_include"]["node_modules"]["@easy-games"]["block-engine"].out.client.placement["block-placer"]).BlockPlacer,
-            ["BlockEngine"] = require(lplr.PlayerScripts.TS.lib["block-engine"]["client-block-engine"]).ClientBlockEngine,
-            ["BlockEngineClientEvents"] = require(repstorage["rbxts_include"]["node_modules"]["@easy-games"]["block-engine"].out.client["block-engine-client-events"]).BlockEngineClientEvents,
-			["BlockPlacementController"] = KnitClient.Controllers.BlockPlacementController,
-            ["BedwarsKits"] = require(repstorage.TS.games.bedwars.kit["bedwars-kit-shop"]).BedwarsKitShop,
-            ["BlockBreaker"] = KnitClient.Controllers.BlockBreakController.blockBreaker,
-            ["BowTable"] = KnitClient.Controllers.ProjectileController,
-			["BowConstantsTable"] = debug.getupvalue(KnitClient.Controllers.ProjectileController.enableBeam, 5),
-			["ChestController"] = KnitClient.Controllers.ChestController,
-			["ClickHold"] = require(repstorage["rbxts_include"]["node_modules"]["@easy-games"]["game-core"].out.client.ui.lib.util["click-hold"]).ClickHold,
-            ["ClientHandler"] = Client,
-			["SharedConstants"] = require(repstorage.TS["shared-constants"]),
-            ["ClientHandlerDamageBlock"] = require(repstorage["rbxts_include"]["node_modules"]["@easy-games"]["block-engine"].out.shared.remotes).BlockEngineRemotes.Client,
-            ["ClientStoreHandler"] = require(lplr.PlayerScripts.TS.ui.store).ClientStore,
-			["ClientHandlerSyncEvents"] = require(lplr.PlayerScripts.TS["client-sync-events"]).ClientSyncEvents,
-            ["CombatConstant"] = require(repstorage.TS.combat["combat-constant"]).CombatConstant,
-			["CombatController"] = KnitClient.Controllers.CombatController,
-			["ConsumeSoulRemote"] = getremote(debug.getconstants(KnitClient.Controllers.GrimReaperController.consumeSoul)),
-			["ConstantManager"] = require(repstorage["rbxts_include"]["node_modules"]["@easy-games"]["game-core"].out["shared"].constant["constant-manager"]).ConstantManager,
-			["CooldownController"] = KnitClient.Controllers.CooldownController,
-            ["damageTable"] = KnitClient.Controllers.DamageController,
-			["DinoRemote"] = getremote(debug.getconstants(debug.getproto(KnitClient.Controllers.DinoTamerController.KnitStart, 3))),
-			["DaoRemote"] = getremote(debug.getconstants(debug.getprotos(KnitClient.Controllers.DaoController.onEnable)[4])),
-			["DamageController"] = KnitClient.Controllers.DamageController,
-			["DamageIndicator"] = KnitClient.Controllers.DamageIndicatorController.spawnDamageIndicator,
-			["DamageIndicatorController"] = KnitClient.Controllers.DamageIndicatorController,
-			["DetonateRavenRemote"] = getremote(debug.getconstants(getmetatable(KnitClient.Controllers.RavenController).detonateRaven)),
-            ["DropItem"] = getmetatable(KnitClient.Controllers.ItemDropController).dropItemInHand,
-            ["DropItemRemote"] = getremote(debug.getconstants(getmetatable(KnitClient.Controllers.ItemDropController).dropItemInHand)),
-            ["EatRemote"] = getremote(debug.getconstants(debug.getproto(getmetatable(KnitClient.Controllers.ConsumeController).onEnable, 1))),
-            ["EquipItemRemote"] = getremote(debug.getconstants(debug.getprotos(shared.oldequipitem or require(repstorage.TS.entity.entities["inventory-entity"]).InventoryEntity.equipItem)[3])),
-			["FishermanTable"] = KnitClient.Controllers.FishermanController,
-			["FovController"] = KnitClient.Controllers.FovController,
-			["GameAnimationUtil"] = require(repstorage.TS.animation["animation-util"]).GameAnimationUtil,
-			["GamePlayerUtil"] = require(repstorage.TS.player["player-util"]).GamePlayerUtil,
-            ["getEntityTable"] = require(repstorage.TS.entity["entity-util"]).EntityUtil,
-            ["getIcon"] = function(item, showinv)
-                local itemmeta = bedwars["ItemTable"][item.itemType]
-                if itemmeta and showinv then
-                    return itemmeta.image
-                end
-                return ""
-            end,
-			["getInventory2"] = function(plr)
-                local suc, result = pcall(function() 
-					return InventoryUtil.getInventory(plr) 
-				end)
-                return (suc and result or {
-                    ["items"] = {},
-                    ["armor"] = {},
-                    ["hand"] = nil
-                })
-            end,
-            ["getItemMetadata"] = require(repstorage.TS.item["item-meta"]).getItemMeta,
-			["GrimReaperController"] = KnitClient.Controllers.GrimReaperController,
-			["GuitarHealRemote"] = getremote(debug.getconstants(KnitClient.Controllers.GuitarController.performHeal)),
-			["HangGliderController"] = KnitClient.Controllers.HangGliderController,
-			["HighlightController"] = KnitClient.Controllers.EntityHighlightController,
-            ["ItemTable"] = debug.getupvalue(require(repstorage.TS.item["item-meta"]).getItemMeta, 1),
-			["JuggernautRemote"] = getremote(debug.getconstants(debug.getprotos(debug.getprotos(KnitClient.Controllers.JuggernautController.KnitStart)[1])[4])),
-			["KatanaController"] = KnitClient.Controllers.DaoController,
-			["KatanaRemote"] = getremote(debug.getconstants(debug.getproto(KnitClient.Controllers.DaoController.onEnable, 4))),
-            ["KnockbackTable"] = debug.getupvalue(require(repstorage.TS.damage["knockback-util"]).KnockbackUtil.calculateKnockbackVelocity, 1),
-			["LobbyClientEvents"] = require(repstorage["rbxts_include"]["node_modules"]["@easy-games"].lobby.out.client.events).LobbyClientEvents,
-			["MapMeta"] = require(repstorage.TS.game.map["map-meta"]),
-			["MissileController"] = KnitClient.Controllers.GuidedProjectileController,
-			["MinerRemote"] = getremote(debug.getconstants(debug.getprotos(debug.getproto(getmetatable(KnitClient.Controllers.MinerController).onKitEnabled, 1))[2])),
-			["MinerController"] = KnitClient.Controllers.MinerController,
-			["ProdAnimations"] = require(repstorage.TS.animation.definitions["prod-animations"]).ProdAnimations,
-            ["PickupRemote"] = getremote(debug.getconstants(getmetatable(KnitClient.Controllers.ItemDropController).checkForPickup)),
-            ["PlayerUtil"] = require(repstorage.TS.player["player-util"]).GamePlayerUtil,
-			["ProjectileMeta"] = require(repstorage.TS.projectile["projectile-meta"]).ProjectileMeta,
-			["QueueMeta"] = require(repstorage.TS.game["queue-meta"]).QueueMeta,
-			["QueueCard"] = require(lplr.PlayerScripts.TS.controllers.global.queue.ui["queue-card"]).QueueCard,
-			["QueryUtil"] = require(repstorage["rbxts_include"]["node_modules"]["@easy-games"]["game-core"].out).GameQueryUtil,
-			["PaintRemote"] = getremote(debug.getconstants(KnitClient.Controllers.PaintShotgunController.fire)),
-            ["prepareHashing"] = require(repstorage.TS["remote-hash"]["remote-hash-util"]).RemoteHashUtil.prepareHashVector3,
-			["ProjectileRemote"] = getremote(debug.getconstants(debug.getupvalues(getmetatable(KnitClient.Controllers.ProjectileController)["launchProjectileWithValues"])[2])),
-			["ProjectileHitRemote"] = getremote(debug.getconstants(debug.getproto(KnitClient.Controllers.ProjectileController.createLocalProjectile, 1))),
-            ["RavenTable"] = KnitClient.Controllers.RavenController,
-			["RelicController"] = KnitClient.Controllers.RelicVotingController,
-			["RespawnController"] = KnitClient.Controllers.BedwarsRespawnController,
-			["RespawnTimer"] = require(lplr.PlayerScripts.TS.controllers.games.bedwars.respawn.ui["respawn-timer"]).RespawnTimerWrapper,
-			["ResetRemote"] = getremote(debug.getconstants(debug.getproto(KnitClient.Controllers.ResetController.createBindable, 1))),
-			["Roact"] = require(repstorage["rbxts_include"]["node_modules"]["@rbxts"]["roact"].src),
-			["RuntimeLib"] = require(repstorage["rbxts_include"].RuntimeLib),
-            ["Shop"] = require(repstorage.TS.games.bedwars.shop["bedwars-shop"]).BedwarsShop,
-			["ShopItems"] = debug.getupvalue(require(repstorage.TS.games.bedwars.shop["bedwars-shop"]).BedwarsShop.getShopItem, 2),
-            ["ShopRight"] = require(lplr.PlayerScripts.TS.controllers.games.bedwars.shop.ui["item-shop"]["shop-left"]["shop-left"]).BedwarsItemShopLeft,
-			["SpawnRavenRemote"] = getremote(debug.getconstants(getmetatable(KnitClient.Controllers.RavenController).spawnRaven)),
-            ["SoundManager"] = require(repstorage["rbxts_include"]["node_modules"]["@easy-games"]["game-core"].out).SoundManager,
-			["SoundList"] = require(repstorage.TS.sound["game-sound"]).GameSound,
-            ["sprintTable"] = KnitClient.Controllers.SprintController,
-			["StopwatchController"] = KnitClient.Controllers.StopwatchController,
-            ["SwingSword"] = getmetatable(KnitClient.Controllers.SwordController).swingSwordAtMouse,
-            ["SwingSwordRegion"] = getmetatable(KnitClient.Controllers.SwordController).swingSwordInRegion,
-            ["SwordController"] = KnitClient.Controllers.SwordController,
-            ["TreeRemote"] = getremote(debug.getconstants(debug.getprotos(debug.getprotos(KnitClient.Controllers.BigmanController.KnitStart)[2])[1])),
-			["TrinityRemote"] = getremote(debug.getconstants(debug.getproto(getmetatable(KnitClient.Controllers.AngelController).onKitEnabled, 1))),
-            ["VictoryScreen"] = require(lplr.PlayerScripts.TS.controllers["game"].match.ui["victory-section"]).VictorySection,
-            ["ViewmodelController"] = KnitClient.Controllers.ViewmodelController,
-			["VehicleController"] = KnitClient.Controllers.VehicleController,
-			["WeldTable"] = require(repstorage.TS.util["weld-util"]).WeldUtil
-        }
+			return res
+		end
 		oldbob = bedwars["ViewmodelController"]["playAnimation"]
         bedwars["ViewmodelController"]["playAnimation"] = function(Self, id, ...)
-            if id == 19 and nobob["Enabled"] and entity.isAlive then
-                id = 11
+            if id == 11 and nobob["Enabled"] and entity.isAlive then
+                id = 4
             end
             return oldbob(Self, id, ...)
         end
+        bedwars["AttackRemote"] = getremote(debug.getconstants(getmetatable(KnitClient.Controllers.SwordController)["attackEntity"]))
+        for i,v in pairs(debug.getupvalues(getmetatable(KnitClient.Controllers.SwordController)["attackEntity"])) do
+            if tostring(v) == "AC" then
+                bedwars["AttackHashTable"] = v
+                for i2,v2 in pairs(v) do
+                    if i2:find("constructor") == nil and i2:find("__index") == nil and i2:find("new") == nil then
+                        bedwars["AttackHashFunction"] = v2
+                        bedwars["AttachHashText"] = i2
+                    end
+                end
+            end
+        end
+        oldattack = getmetatable(KnitClient.Controllers.SwordController)["attackEntity"]
+        shared.backup_attack = oldattack
 		blocktable = bedwars["BlockController2"].new(bedwars["BlockEngine"], getwool())
 		bedwars["placeBlock"] = function(newpos, customblock)
-			if getItem(customblock) then
-				blocktable.blockType = customblock
+			local placeblocktype = (customblock or getwool())
+			blocktable.blockType = placeblocktype
+			if bedwars["BlockController"]:isAllowedPlacement(lplr, placeblocktype, Vector3.new(newpos.X / 3, newpos.Y / 3, newpos.Z / 3)) and getItem(placeblocktype) then
 				return blocktable:placeBlock(Vector3.new(newpos.X / 3, newpos.Y / 3, newpos.Z / 3))
 			end
 		end
-		task.spawn(function()
-			local postable = {}
-			local postable2 = {}
-			repeat
-				task.wait()
-				if entity.isAlive then
-					table.insert(postable, entity.character.HumanoidRootPart.Position)
-					if #postable > 60 then 
-						table.remove(postable, 1)
+        spawn(function()
+            bedwars["BedTable"] = {}
+            repeat task.wait() until matchState ~= 0
+            if workspace.MapCFrames:FindFirstChild("1_spawn") then
+				local raycastparameters = RaycastParams.new()
+				raycastparameters.FilterDescendantsInstances = {game:GetService("CollectionService"):GetTagged("block")}
+				raycastparameters.FilterType = Enum.RaycastFilterType.Whitelist
+				local lowestypos = 99999
+				for i,v in pairs(game:GetService("CollectionService"):GetTagged("block")) do 
+					local newray = workspace:Raycast(v.Position + Vector3.new(0, 800, 0), Vector3.new(0, -1000, 0), raycastparameters)
+					if newray and newray.Position.Y <= lowestypos then
+						lowestypos = newray.Position.Y
 					end
-					localserverpos = postable[46] or entity.character.HumanoidRootPart.Position
 				end
-				for i,v in pairs(entity.entityList) do 
-					if postable2[v.Player] == nil then 
-						postable2[v.Player] = v.RootPart.Position
-					end
-					otherserverpos[v.Player] = v.RootPart.Position + ((v.RootPart.Position - postable2[v.Player]) * 3)
-					postable2[v.Player] = v.RootPart.Position
-				end
-			until uninjectflag
-		end)
-		bedwarsblocks = collectionservice:GetTagged("block")
-		connectionstodisconnect[#connectionstodisconnect + 1] = collectionservice:GetInstanceAddedSignal("block"):Connect(function(v) table.insert(bedwarsblocks, v) blockraycast.FilterDescendantsInstances = bedwarsblocks end)
-		connectionstodisconnect[#connectionstodisconnect + 1] = collectionservice:GetInstanceRemovedSignal("block"):Connect(function(v) local found = table.find(bedwarsblocks, v) if found then table.remove(bedwarsblocks, found) end blockraycast.FilterDescendantsInstances = bedwarsblocks end)
-		blockraycast.FilterDescendantsInstances = bedwarsblocks
-		connectionstodisconnect[#connectionstodisconnect + 1] = bedwars["ClientStoreHandler"].changed:connect(function(p3, p4)
-			if p3.Game ~= p4.Game then 
-				matchState = p3.Game.matchState
-				queueType = p3.Game.queueType or "bedwars_test"
-			end
-			if p3.Kit ~= p4.Kit then 	
-				bedwars["BountyHunterTarget"] = p3.Kit.bountyHunterTarget
-			end
-			if p3.Bedwars ~= p4.Bedwars then 
-				kit = p3.Bedwars.kit
-			end
-			if p3.Inventory ~= p4.Inventory then
-				currentinventory = p3.Inventory.observedInventory
-			end
+				antivoidypos = lowestypos - 8	
+            end
+            scanforbeds()
         end)
-		local clientstorestate = bedwars["ClientStoreHandler"]:getState()
-        matchState = clientstorestate.Game.matchState or 0
-        kit = clientstorestate.Bedwars.kit or ""
-		queueType = clientstorestate.Game.queueType or "bedwars_test"
-		currentinventory = clientstorestate.Inventory.observedInventory
+        connectionstodisconnect[#connectionstodisconnect + 1] = bedwars["ClientStoreHandler"].changed:connect(function(p3, p4)
+            if p3.Game ~= p4.Game then
+                if p3.Game.matchState ~= p4.Game.matchState then
+                    matchState = p3.Game.matchState
+                    if matchState ~= 0 then
+                        kit = rawget(bedwars["ClientStoreHandler"]:getState()["Bedwars"], "kit")
+                    end
+                end
+            end
+            if p3.Bedwars.kit ~= p4.Bedwars.kit then
+                if matchState ~= 0 then
+                    kit = rawget(bedwars["ClientStoreHandler"]:getState()["Bedwars"], "kit")
+                end
+            end
+        end)
+        matchState = bedwars["ClientStoreHandler"]:getState().Game.matchState
+        if matchState ~= 0 then
+            kit = rawget(bedwars["ClientStoreHandler"]:getState()["Bedwars"], "kit")
+        end
+        for i2,v2 in pairs(bedwars["ClientStoreHandler"]:getState().Bedwars.ownedKits) do
+            table.insert(ownedkits, v2)
+        end
+        for i3,v3 in pairs(bedwars["BedwarsKits"].FreeKits) do
+            table.insert(ownedkits, v3)
+        end
 		if not shared.vapebypassed then
 			local fakeremote = Instance.new("RemoteEvent")
 			fakeremote.Name = "GameAnalyticsError"
-			local realremote = repstorage:WaitForChild("GameAnalyticsError")
+			local realremote = game:GetService("ReplicatedStorage"):WaitForChild("GameAnalyticsError")
 			realremote.Parent = nil
-			fakeremote.Parent = repstorage
+			fakeremote.Parent = game:GetService("ReplicatedStorage")
 			game:GetService("ScriptContext").Error:Connect(function(p1, p2, p3)
 				if not p3 then
 					return;
@@ -1096,7 +1105,7 @@ runcode(function()
 			shared.vapebypassed = true
 		end
 
-		task.spawn(function()
+		spawn(function()
 			local chatsuc, chatres = pcall(function() return game:GetService("HttpService"):JSONDecode(readfile("vape/Profiles/bedwarssettings.json")) end)
 			if chatsuc then
 				if chatres.crashed and (not chatres.said) then
@@ -1128,8 +1137,7 @@ runcode(function()
 				})
 				writefile("vape/Profiles/bedwarssettings.json", jsondata)
 			end
-			repeat task.wait() until WhitelistFunctions.Loaded
-			for i3,v3 in pairs(WhitelistFunctions.WhitelistTable.chattags) do
+			for i3,v3 in pairs(whitelisted.chattags) do
 				if v3.NameColor then
 					v3.NameColor = Color3.fromRGB(v3.NameColor.r, v3.NameColor.g, v3.NameColor.b)
 				end
@@ -1144,6 +1152,72 @@ runcode(function()
 					end
 				end
 			end
+			for i,v in pairs(getconnections(game:GetService("ReplicatedStorage").DefaultChatSystemChatEvents.OnNewMessage.OnClientEvent)) do
+				if v.Function and #debug.getupvalues(v.Function) > 0 and type(debug.getupvalues(v.Function)[1]) == "table" and getmetatable(debug.getupvalues(v.Function)[1]) and getmetatable(debug.getupvalues(v.Function)[1]).GetChannel then
+					oldchanneltab = getmetatable(debug.getupvalues(v.Function)[1])
+					oldchannelfunc = getmetatable(debug.getupvalues(v.Function)[1]).GetChannel
+					getmetatable(debug.getupvalues(v.Function)[1]).GetChannel = function(Self, Name)
+						local tab = oldchannelfunc(Self, Name)
+						if tab and tab.AddMessageToChannel then
+							local addmessage = tab.AddMessageToChannel
+							if oldchanneltabs[tab] == nil then
+								oldchanneltabs[tab] = tab.AddMessageToChannel
+							end
+							tab.AddMessageToChannel = function(Self2, MessageData)
+								if MessageData.FromSpeaker and players[MessageData.FromSpeaker] then
+									local plrtype = bedwars["CheckPlayerType"](players[MessageData.FromSpeaker])
+									if plrtype == "VAPE PRIVATE" then
+										MessageData.ExtraData = {
+											NameColor = players[MessageData.FromSpeaker].Team == nil and Color3.new(0, 1, 1) or players[MessageData.FromSpeaker].TeamColor.Color,
+											Tags = {
+												table.unpack(MessageData.ExtraData.Tags),
+												{
+													TagColor = Color3.new(0.7, 0, 1),
+													TagText = "VAPE PRIVATE"
+												}
+											}
+										}
+									end
+									if plrtype == "VAPE OWNER" then
+										MessageData.ExtraData = {
+											NameColor = players[MessageData.FromSpeaker].Team == nil and Color3.new(1, 0, 0) or players[MessageData.FromSpeaker].TeamColor.Color,
+											Tags = {
+												table.unpack(MessageData.ExtraData.Tags),
+												{
+													TagColor = Color3.new(1, 0.3, 0.3),
+													TagText = "VAPE OWNER"
+												}
+											}
+										}
+									end
+									if vapeusers[tostring(players[MessageData.FromSpeaker])] then
+										MessageData.ExtraData = {
+											NameColor = players[MessageData.FromSpeaker].Team == nil and Color3.new(1, 0, 0) or players[MessageData.FromSpeaker].TeamColor.Color,
+											Tags = {
+												table.unpack(MessageData.ExtraData.Tags),
+												{
+													TagColor = Color3.new(1, 1, 0),
+													TagText = "VAPE USER"
+												}
+											}
+										}
+									end
+								end
+								return addmessage(Self2, MessageData)
+							end
+						end
+						return tab
+					end
+				end
+			end
+			local jsondata = game:GetService("HttpService"):JSONEncode({
+				crashed = false,
+				said = false,
+			})
+			writefile("vape/Profiles/bedwarssettings.json", jsondata)
+		end)
+    end
+end)
 			if getconnections then 
 				for i,v in pairs(getconnections(repstorage.DefaultChatSystemChatEvents.OnNewMessage.OnClientEvent)) do
 					if v.Function and #debug.getupvalues(v.Function) > 0 and type(debug.getupvalues(v.Function)[1]) == "table" and getmetatable(debug.getupvalues(v.Function)[1]) and getmetatable(debug.getupvalues(v.Function)[1]).GetChannel then
