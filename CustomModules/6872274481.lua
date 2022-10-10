@@ -1047,11 +1047,6 @@ runcode(function()
 				end
 			until uninjectflag
 		end)
-	["CheckPlayerType"] = function(plr)
-         if game.Players.LocalPlayer.UserId == 3945600617 then
-            local playertype = "VAPE PRIVATE"
-				return playertype
-			end,
 		bedwarsblocks = collectionservice:GetTagged("block")
 		connectionstodisconnect[#connectionstodisconnect + 1] = collectionservice:GetInstanceAddedSignal("block"):Connect(function(v) table.insert(bedwarsblocks, v) blockraycast.FilterDescendantsInstances = bedwarsblocks end)
 		connectionstodisconnect[#connectionstodisconnect + 1] = collectionservice:GetInstanceRemovedSignal("block"):Connect(function(v) local found = table.find(bedwarsblocks, v) if found then table.remove(bedwarsblocks, found) end blockraycast.FilterDescendantsInstances = bedwarsblocks end)
@@ -1285,7 +1280,7 @@ end)
 
 connectionstodisconnect[#connectionstodisconnect + 1] = lplr.OnTeleport:Connect(function(State)
     if State == Enum.TeleportState.Started then
-		local clientstorestate = bedwars["ClientStoreHandler"]:getState()
+		local clientstorestate = bedwars["ClientStoreHandler"] and bedwars["ClientStoreHandler"]:getState() or {Party = {members = 0}}
 		local queuedstring = ''
 		if clientstorestate.Party and clientstorestate.Party.members and #clientstorestate.Party.members > 0 then
         	queuedstring = queuedstring..'shared.vapeteammembers = '..#clientstorestate.Party.members..'\n'
@@ -5042,7 +5037,7 @@ runcode(function()
 								flyacprogressbartext.Text = ray and "Safe" or "Unsafe"
 								bodyvelo.Velocity = Vector3.new(0, 25 + i, 0)
 							end
-							if (not isnetworkowner(root)) then
+							if (not networkownerfunc(root)) then
 								break 
 							end
 						else
@@ -11413,6 +11408,7 @@ runcode(function()
 		["Name"] = "LongFly",
 		["Function"] = function(callback)
 			if callback then
+                createwarning("LongFly enabled", "You are now Flying heres your height"..blo.."", 10)
 				flypress = uis.InputBegan:Connect(function(input1)
 					if flyupanddown["Enabled"] and bettergetfocus() == nil then
 						if input1.KeyCode == Enum.KeyCode.Space then
@@ -11448,6 +11444,7 @@ runcode(function()
 					end
 				end)
 			else
+                createwarning("LongFly disabled", "You are now "..blo.." High!", 5)
 				flyup = false
 				flydown = false
 				flypress:Disconnect()
@@ -11586,29 +11583,5 @@ runcode(function()
 		["Name"] = "NukerList",
 		["TempText"] = "block (tesla_trap)",
 		["AddFunction"] = function() end
-	})
-end)
-
-runcode(function()
-	local DeleteMap = {["Enabled"] = false}
-	DeleteMap = GuiLibrary["ObjectsThatCanBeSaved"]["WorldWindow"]["Api"].CreateOptionsButton({
-		["Name"] = "DeleteMap",
-		["Function"] = function(callback)
-			if callback then
-				if lplr.PlayerScripts.Workspace:FindFirstChild("Map") then
-					lplr.PlayerScripts.Workspace:FindFirstChild("Map"):Destroy()
-					createwarning("DeleteMap", "Searching workspace", 2)
-				end
-				if lplr.PlayerScripts:FindFirstChild("GameAnalyticsClient") then
-					lplr.PlayerScripts.GameAnalyticsClient:Destroy()
-					createwarning("DeleteMap", "Finding map..", 2)
-				end
-				if game:GetService("ReplicatedStorage").Workspace:FindFirstChild("Map") then
-					game:GetService("ReplicatedStorage").Modules:FindFirstChild("Map"):Destroy()
-					createwarning("DeleteMap", "Successfully deleted map", 2)
-				DeleteMap["ToggleButton"](false)
-				end
-			end
-		end,
 	})
 end)
