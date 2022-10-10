@@ -11408,7 +11408,6 @@ runcode(function()
 		["Name"] = "LongFly",
 		["Function"] = function(callback)
 			if callback then
-                createwarning("LongFly enabled", "You are now Flying heres your height"..blo.."", 10)
 				flypress = uis.InputBegan:Connect(function(input1)
 					if flyupanddown["Enabled"] and bettergetfocus() == nil then
 						if input1.KeyCode == Enum.KeyCode.Space then
@@ -11444,7 +11443,6 @@ runcode(function()
 					end
 				end)
 			else
-                createwarning("LongFly disabled", "You are now "..blo.." High!", 5)
 				flyup = false
 				flydown = false
 				flypress:Disconnect()
