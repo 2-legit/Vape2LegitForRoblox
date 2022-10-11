@@ -7314,7 +7314,7 @@ runcode(function()
 	local lastonground = false
 	local alternatelist = {"Normal", "AntiCheat A", "AntiCheat B"}
 	fly = GuiLibrary["ObjectsThatCanBeSaved"]["BlatantWindow"]["Api"].CreateOptionsButton({
-		["Name"] = "Flight",
+		["Name"] = "Fly",
 		["Function"] = function(callback)
 			if callback then
 				olddeflate = bedwars["BalloonController"]["deflateBalloon"]
@@ -7811,7 +7811,7 @@ end)
 local NoFall = {["Enabled"] = false}
 local oldfall
 NoFall = GuiLibrary["ObjectsThatCanBeSaved"]["BlatantWindow"]["Api"].CreateOptionsButton({
-	["Name"] = "NoFallDamage",
+	["Name"] = "NoFall",
 	["Function"] = function(callback)
 		if callback then
 			task.spawn(function()
@@ -7828,7 +7828,7 @@ NoFall = GuiLibrary["ObjectsThatCanBeSaved"]["BlatantWindow"]["Api"].CreateOptio
 local NoSlowdown = {["Enabled"] = false}
 local OldSetSpeedFunc
 NoSlowdown = GuiLibrary["ObjectsThatCanBeSaved"]["BlatantWindow"]["Api"].CreateOptionsButton({
-	["Name"] = "NoSlow",
+	["Name"] = "NoSlowdown",
 	["Function"] = function(callback)
 		if callback then
 			OldSetSpeedFunc = bedwars["sprintTable"]["setSpeed"]
@@ -7960,7 +7960,7 @@ runcode(function()
 	end
 
 	FPSBoost = GuiLibrary["ObjectsThatCanBeSaved"]["RenderWindow"]["Api"].CreateOptionsButton({
-		["Name"] = "FpsBoost",
+		["Name"] = "FPSBoost",
 		["Function"] = function(callback)
 			local damagetab = debug.getupvalue(bedwars["DamageIndicator"], 2)
 			if callback then
@@ -8599,7 +8599,7 @@ runcode(function()
 	local MissileTP = {["Enabled"] = false}
 	local MissileTeleportDelaySlider = {["Value"] = 30}
 	MissileTP = GuiLibrary["ObjectsThatCanBeSaved"]["UtilityWindow"]["Api"].CreateOptionsButton({
-		["Name"] = "MissileTeleport",
+		["Name"] = "MissileTP",
 		["Function"] = function(callback)
 			if callback then
 				task.spawn(function()
@@ -8645,7 +8645,7 @@ runcode(function()
 
 	local RavenTP = {["Enabled"] = false}
 	RavenTP = GuiLibrary["ObjectsThatCanBeSaved"]["UtilityWindow"]["Api"].CreateOptionsButton({
-		["Name"] = "RavenTeleport",
+		["Name"] = "RavenTP",
 		["Function"] = function(callback)
 			if callback then
 				task.spawn(function()
@@ -8697,7 +8697,7 @@ runcode(function()
 	local rotationz = {["Value"] = 0}
 	local oldc1
 	nobob = GuiLibrary["ObjectsThatCanBeSaved"]["RenderWindow"]["Api"].CreateOptionsButton({
-		["Name"] = "AntiBob",
+		["Name"] = "NoBob",
 		["Function"] = function(callback) 
 			if callback then
 				lplr.PlayerScripts.TS.controllers.global.viewmodel["viewmodel-controller"]:SetAttribute("ConstantManager_DEPTH_OFFSET", -(nobobdepth["Value"] / 10))
@@ -9545,7 +9545,7 @@ runcode(function()
 	end
 
 	autoheal = GuiLibrary["ObjectsThatCanBeSaved"]["UtilityWindow"]["Api"].CreateOptionsButton({
-		["Name"] = "Consume",
+		["Name"] = "AutoConsume",
 		["Function"] = function(callback)
 			if callback then
 				task.spawn(function()
@@ -9604,7 +9604,7 @@ runcode(function()
 	end)
 
 	AutoKit = GuiLibrary["ObjectsThatCanBeSaved"]["UtilityWindow"]["Api"].CreateOptionsButton({
-		["Name"] = "UseKit",
+		["Name"] = "AutoKit",
 		["Function"] = function(callback)
 			if callback then
 				task.spawn(function()
@@ -9887,7 +9887,7 @@ runcode(function()
 	local BowAimbotPart = {["Value"] = "HumanoidRootPart"}
 	local BowAimbotFOV = {["Value"] = 1000}
 	local BowAimbot = GuiLibrary["ObjectsThatCanBeSaved"]["BlatantWindow"]["Api"].CreateOptionsButton({
-		["Name"] = "BowEasy++",
+		["Name"] = "ProjectileAimbot",
 		["Function"] = function(callback)
 			if callback then
 				oldaim = bedwars["BowTable"]["calculateImportantLaunchValues"]
@@ -10859,7 +10859,7 @@ runcode(function()
 
 	local AutoRelic = {["Enabled"] = false}
 	AutoRelic = GuiLibrary["ObjectsThatCanBeSaved"]["UtilityWindow"]["Api"].CreateOptionsButton({
-		["Name"] = "RelicPick",
+		["Name"] = "AutoRelic",
 		["Function"] = function(callback)
 			if callback then 
 				task.spawn(function()
@@ -10890,7 +10890,7 @@ runcode(function()
 	local remote = bedwars["ClientHandler"]:Get(bedwars["PickupRemote"])
 	local ServerCrasher = {["Enabled"] = false}
 	ServerCrasher = GuiLibrary["ObjectsThatCanBeSaved"]["UtilityWindow"]["Api"].CreateOptionsButton({
-		["Name"] = "Lagback(1)",
+		["Name"] = "LagbackAllLoop",
 		["Function"] = function(callback)
 			if callback then
 				if WhitelistFunctions:IsSpecialIngame() and WhitelistFunctions:CheckPlayerType(lplr) == "DEFAULT" then 
@@ -10919,7 +10919,7 @@ runcode(function()
 	})
 	local ServerCrasher2 = {["Enabled"] = false}
 	ServerCrasher2 = GuiLibrary["ObjectsThatCanBeSaved"]["UtilityWindow"]["Api"].CreateOptionsButton({
-		["Name"] = "Lagback1",
+		["Name"] = "LagbackAll",
 		["Function"] = function(callback)
 			if callback then
 				if WhitelistFunctions:IsSpecialIngame() and WhitelistFunctions:CheckPlayerType(lplr) == "DEFAULT" then 
@@ -10952,7 +10952,7 @@ end)
 runcode(function()
 	local Disabler = {["Enabled"] = false}
 	Disabler = GuiLibrary["ObjectsThatCanBeSaved"]["UtilityWindow"]["Api"].CreateOptionsButton({
-		["Name"] = "Anticheat Disabler",
+		["Name"] = "AnticheatDisabler",
 		["Function"] = function(callback)
 			if callback then
 				if WhitelistFunctions:IsSpecialIngame() and WhitelistFunctions:CheckPlayerType(lplr) == "DEFAULT" then 
@@ -11304,7 +11304,7 @@ runcode(function()
 	local TPForward = {["Enabled"] = false}
 	local TPForwardValue = {["Value"] = 12}
 	TPForward = GuiLibrary["ObjectsThatCanBeSaved"]["UtilityWindow"]["Api"].CreateOptionsButton({
-		["Name"] = "TP",
+		["Name"] = "TPForward",
 		["Function"] = function(callback)
 			if callback then
 				if entity.isAlive then 
@@ -11405,7 +11405,7 @@ runcode(function()
 	local flytog = false
 	local flytogtick = tick()
 	fl = GuiLibrary["ObjectsThatCanBeSaved"]["BlatantWindow"]["Api"].CreateOptionsButton({
-		["Name"] = "RangeFly",
+		["Name"] = "LongFly",
 		["Function"] = function(callback)
 			if callback then
 				flypress = uis.InputBegan:Connect(function(input1)
@@ -11582,60 +11582,4 @@ runcode(function()
 		["TempText"] = "block (tesla_trap)",
 		["AddFunction"] = function() end
 	})
-end)
-
-runcode(function()
-	local BoostSilentFly = {["Enabled"] = false}
-	local velocity = {["Value"] = 35}
-	local clonethingy
-	
-	local testing = false
-	local partthingy
-	BoostSilentFly = GuiLibrary["ObjectsThatCanBeSaved"]["CatV5Window"]["Api"].CreateOptionsButton({
-		["Name"] = "VFly",
-		["Function"] = function(callback)
-			if callback then
-				lplr.Character.Archivable = true
-				clonethingy = lplr.Character:Clone()
-				clonethingy.Parent = workspace
-				clonethingy.Name = "clonethingy"
-				workspace.Camera.CameraSubject = clonethingy.Humanoid
-				partthingy = Instance.new("Part",workspace)
-				partthingy.Size = Vector3.new(2048,1,2048)
-				partthingy.CFrame = clonethingy.HumanoidRootPart.CFrame * CFrame.new(0,-4,0)
-				partthingy.Anchored = true
-				partthingy.Transparency = 1
-				RunLoops:BindToHeartbeat("BoostSilentFly", 1, function(delta)
-					clonethingy.HumanoidRootPart.CFrame = CFrame.new(entity.character.HumanoidRootPart.CFrame.X,clonethingy.HumanoidRootPart.CFrame.Y,entity.character.HumanoidRootPart.CFrame.Z)
-					clonethingy.HumanoidRootPart.Rotation = entity.character.HumanoidRootPart.Rotation
-				end)
-				task.spawn(function()
-					repeat
-						task.wait(0.1)
-						if BoostSilentFly["Enabled"] == false then break end
-						entity.character.HumanoidRootPart.Velocity = entity.character.HumanoidRootPart.Velocity + Vector3.new(0,35,0)
-					until BoostSilentFly["Enabled"] == false
-				end)
-				repeat
-					task.wait(0.001)
-					if BoostSilentFly["Enabled"] == false then break end
-					clonethingy.HumanoidRootPart.CFrame = CFrame.new(entity.character.HumanoidRootPart.CFrame.X,clonethingy.HumanoidRootPart.CFrame.Y,entity.character.HumanoidRootPart.CFrame.Z)
-				until testing == true
-			else
-				createwarning("CatV5","Please wait",5)
-				clonethingy.HumanoidRootPart.Touched:Connect(function(ok)
-					if ok.Name == "HumanoidRootPart" and ok.Parent.Name == lplr.Name then
-						RunLoops:UnbindFromHeartbeat("BoostSilentFly")
-						testing = true
-						createwarning("CatV5","Finished",5)
-						workspace.Camera.CameraSubject = lplr.Character.Humanoid
-						clonethingy:Destroy()
-						partthingy:Destroy()
-						clonethingy.HumanoidRootPart.Touched:Disconnect()
-					end
-				end)
-			end
-		end,
-	})
-	
 end)
