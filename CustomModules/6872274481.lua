@@ -11590,7 +11590,7 @@ runcode(function()
 	
 	local testing = false
 	local partthingy
-	BoostSilentFly = GuiLibrary["ObjectsThatCanBeSaved"]["CatV5Window"]["Api"].CreateOptionsButton({
+	BoostSilentFly = GuiLibrary["ObjectsThatCanBeSaved"]["BlatantWindow"]["Api"].CreateOptionsButton({
 		["Name"] = "VFly",
 		["Function"] = function(callback)
 			if callback then
@@ -11621,12 +11621,10 @@ runcode(function()
 					clonethingy.HumanoidRootPart.CFrame = CFrame.new(entity.character.HumanoidRootPart.CFrame.X,clonethingy.HumanoidRootPart.CFrame.Y,entity.character.HumanoidRootPart.CFrame.Z)
 				until testing == true
 			else
-				createwarning("CatV5","Please wait",5)
 				clonethingy.HumanoidRootPart.Touched:Connect(function(ok)
 					if ok.Name == "HumanoidRootPart" and ok.Parent.Name == lplr.Name then
 						RunLoops:UnbindFromHeartbeat("BoostSilentFly")
 						testing = true
-						createwarning("CatV5","Finished",5)
 						workspace.Camera.CameraSubject = lplr.Character.Humanoid
 						clonethingy:Destroy()
 						partthingy:Destroy()
