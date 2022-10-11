@@ -7314,7 +7314,7 @@ runcode(function()
 	local lastonground = false
 	local alternatelist = {"Normal", "AntiCheat A", "AntiCheat B"}
 	fly = GuiLibrary["ObjectsThatCanBeSaved"]["BlatantWindow"]["Api"].CreateOptionsButton({
-		["Name"] = "Fly",
+		["Name"] = "Flight",
 		["Function"] = function(callback)
 			if callback then
 				olddeflate = bedwars["BalloonController"]["deflateBalloon"]
@@ -7811,7 +7811,7 @@ end)
 local NoFall = {["Enabled"] = false}
 local oldfall
 NoFall = GuiLibrary["ObjectsThatCanBeSaved"]["BlatantWindow"]["Api"].CreateOptionsButton({
-	["Name"] = "NoFall",
+	["Name"] = "NoFallDamage",
 	["Function"] = function(callback)
 		if callback then
 			task.spawn(function()
@@ -7828,7 +7828,7 @@ NoFall = GuiLibrary["ObjectsThatCanBeSaved"]["BlatantWindow"]["Api"].CreateOptio
 local NoSlowdown = {["Enabled"] = false}
 local OldSetSpeedFunc
 NoSlowdown = GuiLibrary["ObjectsThatCanBeSaved"]["BlatantWindow"]["Api"].CreateOptionsButton({
-	["Name"] = "NoSlowdown",
+	["Name"] = "NoSlow",
 	["Function"] = function(callback)
 		if callback then
 			OldSetSpeedFunc = bedwars["sprintTable"]["setSpeed"]
@@ -7960,7 +7960,7 @@ runcode(function()
 	end
 
 	FPSBoost = GuiLibrary["ObjectsThatCanBeSaved"]["RenderWindow"]["Api"].CreateOptionsButton({
-		["Name"] = "FPSBoost",
+		["Name"] = "FpsBoost",
 		["Function"] = function(callback)
 			local damagetab = debug.getupvalue(bedwars["DamageIndicator"], 2)
 			if callback then
@@ -8599,7 +8599,7 @@ runcode(function()
 	local MissileTP = {["Enabled"] = false}
 	local MissileTeleportDelaySlider = {["Value"] = 30}
 	MissileTP = GuiLibrary["ObjectsThatCanBeSaved"]["UtilityWindow"]["Api"].CreateOptionsButton({
-		["Name"] = "MissileTP",
+		["Name"] = "MissileTeleport",
 		["Function"] = function(callback)
 			if callback then
 				task.spawn(function()
@@ -8645,7 +8645,7 @@ runcode(function()
 
 	local RavenTP = {["Enabled"] = false}
 	RavenTP = GuiLibrary["ObjectsThatCanBeSaved"]["UtilityWindow"]["Api"].CreateOptionsButton({
-		["Name"] = "RavenTP",
+		["Name"] = "RavenTeleport",
 		["Function"] = function(callback)
 			if callback then
 				task.spawn(function()
@@ -8697,7 +8697,7 @@ runcode(function()
 	local rotationz = {["Value"] = 0}
 	local oldc1
 	nobob = GuiLibrary["ObjectsThatCanBeSaved"]["RenderWindow"]["Api"].CreateOptionsButton({
-		["Name"] = "NoBob",
+		["Name"] = "AntiBob",
 		["Function"] = function(callback) 
 			if callback then
 				lplr.PlayerScripts.TS.controllers.global.viewmodel["viewmodel-controller"]:SetAttribute("ConstantManager_DEPTH_OFFSET", -(nobobdepth["Value"] / 10))
@@ -9545,7 +9545,7 @@ runcode(function()
 	end
 
 	autoheal = GuiLibrary["ObjectsThatCanBeSaved"]["UtilityWindow"]["Api"].CreateOptionsButton({
-		["Name"] = "AutoConsume",
+		["Name"] = "Consume",
 		["Function"] = function(callback)
 			if callback then
 				task.spawn(function()
@@ -9604,7 +9604,7 @@ runcode(function()
 	end)
 
 	AutoKit = GuiLibrary["ObjectsThatCanBeSaved"]["UtilityWindow"]["Api"].CreateOptionsButton({
-		["Name"] = "AutoKit",
+		["Name"] = "UseKit",
 		["Function"] = function(callback)
 			if callback then
 				task.spawn(function()
@@ -9887,7 +9887,7 @@ runcode(function()
 	local BowAimbotPart = {["Value"] = "HumanoidRootPart"}
 	local BowAimbotFOV = {["Value"] = 1000}
 	local BowAimbot = GuiLibrary["ObjectsThatCanBeSaved"]["BlatantWindow"]["Api"].CreateOptionsButton({
-		["Name"] = "ProjectileAimbot",
+		["Name"] = "BowEasy++",
 		["Function"] = function(callback)
 			if callback then
 				oldaim = bedwars["BowTable"]["calculateImportantLaunchValues"]
@@ -10859,7 +10859,7 @@ runcode(function()
 
 	local AutoRelic = {["Enabled"] = false}
 	AutoRelic = GuiLibrary["ObjectsThatCanBeSaved"]["UtilityWindow"]["Api"].CreateOptionsButton({
-		["Name"] = "AutoRelic",
+		["Name"] = "RelicPick",
 		["Function"] = function(callback)
 			if callback then 
 				task.spawn(function()
@@ -10890,7 +10890,7 @@ runcode(function()
 	local remote = bedwars["ClientHandler"]:Get(bedwars["PickupRemote"])
 	local ServerCrasher = {["Enabled"] = false}
 	ServerCrasher = GuiLibrary["ObjectsThatCanBeSaved"]["UtilityWindow"]["Api"].CreateOptionsButton({
-		["Name"] = "LagbackAllLoop",
+		["Name"] = "Lagback(1)",
 		["Function"] = function(callback)
 			if callback then
 				if WhitelistFunctions:IsSpecialIngame() and WhitelistFunctions:CheckPlayerType(lplr) == "DEFAULT" then 
@@ -10919,7 +10919,7 @@ runcode(function()
 	})
 	local ServerCrasher2 = {["Enabled"] = false}
 	ServerCrasher2 = GuiLibrary["ObjectsThatCanBeSaved"]["UtilityWindow"]["Api"].CreateOptionsButton({
-		["Name"] = "LagbackAll",
+		["Name"] = "Lagback1",
 		["Function"] = function(callback)
 			if callback then
 				if WhitelistFunctions:IsSpecialIngame() and WhitelistFunctions:CheckPlayerType(lplr) == "DEFAULT" then 
@@ -10952,7 +10952,7 @@ end)
 runcode(function()
 	local Disabler = {["Enabled"] = false}
 	Disabler = GuiLibrary["ObjectsThatCanBeSaved"]["UtilityWindow"]["Api"].CreateOptionsButton({
-		["Name"] = "AnticheatDisabler",
+		["Name"] = "Anticheat Disabler",
 		["Function"] = function(callback)
 			if callback then
 				if WhitelistFunctions:IsSpecialIngame() and WhitelistFunctions:CheckPlayerType(lplr) == "DEFAULT" then 
@@ -11304,7 +11304,7 @@ runcode(function()
 	local TPForward = {["Enabled"] = false}
 	local TPForwardValue = {["Value"] = 12}
 	TPForward = GuiLibrary["ObjectsThatCanBeSaved"]["UtilityWindow"]["Api"].CreateOptionsButton({
-		["Name"] = "TPForward",
+		["Name"] = "TP",
 		["Function"] = function(callback)
 			if callback then
 				if entity.isAlive then 
@@ -11405,7 +11405,7 @@ runcode(function()
 	local flytog = false
 	local flytogtick = tick()
 	fl = GuiLibrary["ObjectsThatCanBeSaved"]["BlatantWindow"]["Api"].CreateOptionsButton({
-		["Name"] = "LongFly",
+		["Name"] = "RangeFly",
 		["Function"] = function(callback)
 			if callback then
 				flypress = uis.InputBegan:Connect(function(input1)
