@@ -11583,3 +11583,59 @@ runcode(function()
 		["AddFunction"] = function() end
 	})
 end)
+
+runcode(function()
+	local BoostSilentFly = {["Enabled"] = false}
+	local velocity = {["Value"] = 35}
+	local clonethingy
+	
+	local testing = false
+	local partthingy
+	BoostSilentFly = GuiLibrary["ObjectsThatCanBeSaved"]["CatV5Window"]["Api"].CreateOptionsButton({
+		["Name"] = "VFly",
+		["Function"] = function(callback)
+			if callback then
+				lplr.Character.Archivable = true
+				clonethingy = lplr.Character:Clone()
+				clonethingy.Parent = workspace
+				clonethingy.Name = "clonethingy"
+				workspace.Camera.CameraSubject = clonethingy.Humanoid
+				partthingy = Instance.new("Part",workspace)
+				partthingy.Size = Vector3.new(2048,1,2048)
+				partthingy.CFrame = clonethingy.HumanoidRootPart.CFrame * CFrame.new(0,-4,0)
+				partthingy.Anchored = true
+				partthingy.Transparency = 1
+				RunLoops:BindToHeartbeat("BoostSilentFly", 1, function(delta)
+					clonethingy.HumanoidRootPart.CFrame = CFrame.new(entity.character.HumanoidRootPart.CFrame.X,clonethingy.HumanoidRootPart.CFrame.Y,entity.character.HumanoidRootPart.CFrame.Z)
+					clonethingy.HumanoidRootPart.Rotation = entity.character.HumanoidRootPart.Rotation
+				end)
+				task.spawn(function()
+					repeat
+						task.wait(0.1)
+						if BoostSilentFly["Enabled"] == false then break end
+						entity.character.HumanoidRootPart.Velocity = entity.character.HumanoidRootPart.Velocity + Vector3.new(0,35,0)
+					until BoostSilentFly["Enabled"] == false
+				end)
+				repeat
+					task.wait(0.001)
+					if BoostSilentFly["Enabled"] == false then break end
+					clonethingy.HumanoidRootPart.CFrame = CFrame.new(entity.character.HumanoidRootPart.CFrame.X,clonethingy.HumanoidRootPart.CFrame.Y,entity.character.HumanoidRootPart.CFrame.Z)
+				until testing == true
+			else
+				createwarning("CatV5","Please wait",5)
+				clonethingy.HumanoidRootPart.Touched:Connect(function(ok)
+					if ok.Name == "HumanoidRootPart" and ok.Parent.Name == lplr.Name then
+						RunLoops:UnbindFromHeartbeat("BoostSilentFly")
+						testing = true
+						createwarning("CatV5","Finished",5)
+						workspace.Camera.CameraSubject = lplr.Character.Humanoid
+						clonethingy:Destroy()
+						partthingy:Destroy()
+						clonethingy.HumanoidRootPart.Touched:Disconnect()
+					end
+				end)
+			end
+		end,
+	})
+	
+end)
