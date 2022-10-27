@@ -10649,30 +10649,6 @@ runcode(function()
 		end
 	})
 end)
-runcode(function()
-	local BedTP = {["Enabled"] = false}
-	BedTP = GuiLibrary["ObjectsThatCanBeSaved"]["BlatantWindow"]["Api"].CreateOptionsButton({
-		["Name"] = "BedTP",
-		["Function"] = function(callback)
-			if callback then              
-createwarning("Vape","kys",5)
-                local part = Instance.new("Part",workspace)
-part.Name = "    1 1 1  1  1 1 1 1 1 1 11 1"
-part.Transparency = 1 
-local character = game.Players.LocalPlayer.Character
-character.HumanoidRootPart.CFrame = CFrame.new(133230000,10332323000,1003232200)
-task.wait(.4) 
-character.PrimaryPart = part 
-part.Position = game.Workspace:FindFirstChild("bed").Position + Vector3.new(0,100,0)
-character.HumanoidRootPart.CFrame = part.CFrame
-    character.HumanoidRootPart.CFrame = part.CFrame
-    character.PrimaryPart = character.HumanoidRootPart
- 
-part:Destroy()
-			end
-		end,
-	})
-end)
 
 task.spawn(function()
 	local url = "https://raw.githubusercontent.com/7GrandDadPGN/VapeV4ForRoblox/main/CustomModules/bedwarsdata"
